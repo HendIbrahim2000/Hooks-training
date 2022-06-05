@@ -1,4 +1,5 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
+import axios from 'axios'
 
 
 
@@ -7,6 +8,23 @@ const Todo = props => {
     const [todoList, addTodoList] = useState([])
 
     // const [todoState, setTodoState] = useState({todoInput: '', todoList: []})
+
+    useEffect(()=> {
+        axios.get('https://dailytask-9ebe8-default-rtdb.firebaseio.com/todos.json')
+        .then( res => {
+            const result = res.data;
+            const initialList = []
+            for(const key in result) {
+                initialList.push({id: key, item: result[key].item})
+            }
+            
+            addTodoList(initialList)
+            console.log(initialList)
+        })
+        .catch( err => {
+            console.log(err)
+        })
+    }, [])
 
     const onchangeHandler = event => {
 
@@ -25,13 +43,14 @@ const Todo = props => {
         // })
 
         addTodoList(todoList.concat(todoName))
+        axios.post('https://dailytask-9ebe8-default-rtdb.firebaseio.com/todos.json', {item: todoName})
     }
 
     return (<React.Fragment>
         <input type='text' defaultValue={todoName} onChange={onchangeHandler} />
         <button onClick={addListItem}>Add List</button>
         <ul>
-            {todoList.map((item, index) => <li key={index}>{item}</li>)}
+            {todoList.map(item => <li key={item.id}>{item.item}</li>)}
         </ul>
     </React.Fragment>)
 }
