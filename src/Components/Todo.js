@@ -5,6 +5,7 @@ import axios from 'axios'
 
 const Todo = props => {
     const [todoName, setTodoName] = useState('');
+    const [submitTodoList, setSubmitTodoList] = useState(null)
     const [todoList, addTodoList] = useState([])
 
     // const [todoState, setTodoState] = useState({todoInput: '', todoList: []})
@@ -26,6 +27,12 @@ const Todo = props => {
         })
     }, [])
 
+    useEffect(()=> {
+        if(submitTodoList) {
+            addTodoList(todoList.concat(submitTodoList))
+        }
+    }, [submitTodoList])
+
     const onchangeHandler = event => {
 
         // setTodoState({
@@ -42,8 +49,18 @@ const Todo = props => {
         //     todoList: todoState.todoList.concat(todoState.todoInput)
         // })
 
-        addTodoList(todoList.concat(todoName))
         axios.post('https://dailytask-9ebe8-default-rtdb.firebaseio.com/todos.json', {item: todoName})
+        .then(res => {
+            setTimeout(()=>{
+                console.log(res)
+                const todoItem = {id: res.data.name, item: todoName}
+                setSubmitTodoList(todoItem)
+            }, 3000)
+            
+        })
+        .catch(err => {
+            console.log(err)
+        })
     }
 
     return (<React.Fragment>
